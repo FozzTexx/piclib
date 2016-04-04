@@ -1,0 +1,70 @@
+defineps getDepth(|int *min, *max; boolean *iscolor; int *width, *height)
+	workspaceWindow currentdeviceinfo iscolor max min
+	workspaceWindow windowdeviceround initclip clippath pathbbox
+	4 -2 roll pop pop height width
+endps
+
+defineps initWindow(int x, y, width, height, lwin; boolean show | int *windownum)
+	/showpage {initgraphics} bind def
+	/WDICT true setshared 1 dict dup /level 0 put false setshared def
+
+	x y width 2 add height 24 add 0 window
+	dup WDICT exch setwindowdict
+	windowdeviceround
+	show {
+	  lwin 0 eq not {
+	    Below lwin currentwindow
+	  } {
+	    Above 0 currentwindow orderwindow
+	  } ifelse
+	} if
+	/mwin gstate currentgstate def
+
+	Allevents currentwindow seteventmask
+
+	0 setgray
+	0 height 2 add width 2 add 22 Copy compositerect
+  
+	2 3 div setgray
+	1 height 3 add moveto 0 20 rlineto
+	width 1 sub 0 rlineto stroke
+
+	1 3 div setgray
+	2 height 3 add moveto width 2 sub 0 rlineto
+	0 19 rlineto stroke
+
+	0 setgray 0 1 moveto 0 height 2 add lineto
+	width 1 add height 2 add lineto width 1 add 1 lineto closepath stroke
+
+	1 1 translate
+
+	currentwindow windownum
+endps
+
+defineps compositeImageMono(int width, height)
+	/picstr width string def
+	/screen {
+	  width height 8 [width 0 0 height neg 0 height] {
+	    currentfile picstr readstring pop
+	  } image
+	} def
+	width height scale screen
+endps
+
+defineps compositeImageColor(int width, height)
+	/picstr width string def
+	/screen {
+	  width height 8 [width 0 0 height neg 0 height] {
+	    currentfile picstr readstring pop
+	  } false 3 colorimage
+	} def
+	width height scale screen
+endps
+
+defineps showWindow(int win1, win2)
+	win2 0 eq not {
+	  Below win2 win1 orderwindow
+	} {
+	  Above 0 win1 orderwindow
+	} ifelse
+endps

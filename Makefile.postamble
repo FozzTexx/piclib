@@ -1,0 +1,55 @@
+PFORMATS=fmtIIgs fmtgif fmttiff fmtast fmthp150 fmtppm fmtclip fmtgrob fmtjpeg fmtppp
+NS33DEVOBJS=	devNeXT.o devNXWin.o
+DEVOBJS=	devHP.o devAscii.o devXerox.o
+
+PFORMATSC=$(PFORMATS:=.c)
+PFORMATSH=$(PFORMATS:=.h)
+PFORMATSO=$(PFORMATS:=.o)
+
+devNXWin.h: devNXWin.psw
+devNXWin.o: devNXWin.psw
+
+$(DEVOBJS): device.h
+
+picview: $(OFILE_DIR) picview.o $(OBJS) $(DEVOBJS) $(PRODUCT)
+	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS) $(DEVOBJS)
+
+pictoeps: $(OFILE_DIR) pictoeps.o $(OBJS) $(PRODUCT)
+	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+
+picconvert: $(OFILE_DIR) picconvert.o $(OBJS) $(PRODUCT)
+	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+
+picinfo: $(OFILE_DIR) picinfo.o $(OBJS) $(PRODUCT)
+	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+
+find_dens: $(OFILE_DIR) find_dens.o $(OBJS) $(PRODUCT)
+	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+
+findth: $(OFILE_DIR) findth.o $(OBJS) $(PRODUCT)
+	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+
+draw_gm: $(OFILE_DIR) draw_gm.o $(OBJS) $(PRODUCT)
+	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+
+draw_cdens: $(OFILE_DIR) draw_cdens.o $(OBJS) $(PRODUCT)
+	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+
+tarshow: $(OFILE_DIR) tarshow.o $(PRODUCT)
+	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+
+picloader.o : picloader.c picloader.h piclib.h $(PFORMATSH)
+
+picsaver.o : picsaver.c picsaver.h piclib.h $(PFORMATSH)
+
+devHP.o : devHP.c devHP.h piclib.h
+devXerox.o : devXerox.c devXerox.h piclib.h
+devNeXT.o : devNeXT.c devNeXT.h piclib.h devNXWin.h
+devAscii.o : devAscii.c devAscii.h piclib.h
+
+picview.o : picview.c piclib.h picloader.h \
+	devHP.h devNeXT.h devAscii.h devXerox.h
+
+pictoeps.o : pictoeps.c piclib.h picloader.h
+picconvert.o : picconvert.c piclib.h picloader.h picsaver.h
+picinfo.o : picinfo.c piclib.h picloader.h
