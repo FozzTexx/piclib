@@ -1,6 +1,7 @@
 PFORMATS=fmtIIgs fmtgif fmttiff fmtast fmthp150 fmtppm fmtclip fmtgrob fmtjpeg fmtppp
 NS33DEVOBJS=	devNeXT.o devNXWin.o
-DEVOBJS=	devHP.o devAscii.o devXerox.o
+DEVICES=	devHP.o devAscii.o devXerox.o
+DEVOBJS= $(addprefix $(OBJDIR)/, $(DEVICES))
 
 PFORMATSC=$(PFORMATS:=.c)
 PFORMATSH=$(PFORMATS:=.h)
@@ -11,45 +12,45 @@ devNXWin.o: devNXWin.psw
 
 $(DEVOBJS): device.h
 
-picview: $(OFILE_DIR) picview.o $(OBJS) $(DEVOBJS) $(PRODUCT)
-	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS) $(DEVOBJS)
+$(BINDIR)/picview: $(OFILE_DIR) $(OBJDIR)/picview.o $(OBJS) $(DEVOBJS) $(PRODUCT_BIN)
+	$(CC) $(ALL_CFLAGS) -o $@ $(CFLAGS) $< $(LIBS) $(OTHER_LIBS) $(OBJS) $(DEVOBJS)
 
-pictoeps: $(OFILE_DIR) pictoeps.o $(OBJS) $(PRODUCT)
-	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+$(BINDIR)/pictoeps: $(OFILE_DIR) $(OBJDIR)/pictoeps.o $(OBJS) $(PRODUCT_BIN)
+	$(CC) $(ALL_CFLAGS) -o $@ $(CFLAGS) $< $(LIBS) $(OTHER_LIBS) $(OBJS)
 
-picconvert: $(OFILE_DIR) picconvert.o $(OBJS) $(PRODUCT)
-	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+$(BINDIR)/picconvert: $(OFILE_DIR) $(OBJDIR)/picconvert.o $(OBJS) $(PRODUCT_BIN)
+	$(CC) $(ALL_CFLAGS) -o $@ $(CFLAGS) $< $(LIBS) $(OTHER_LIBS) $(OBJS)
 
-picinfo: $(OFILE_DIR) picinfo.o $(OBJS) $(PRODUCT)
-	$(CC) $(ALL_CFLAGS) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+$(BINDIR)/picinfo: $(OFILE_DIR) $(OBJDIR)/picinfo.o $(OBJS) $(PRODUCT_BIN)
+	$(CC) $(ALL_CFLAGS) -o $@ $(CFLAGS) $< $(LIBS) $(OTHER_LIBS) $(OBJS)
 
-find_dens: $(OFILE_DIR) find_dens.o $(OBJS) $(PRODUCT)
-	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+$(BINDIR)/find_dens: $(OFILE_DIR) $(OBJDIR)/find_dens.o $(OBJS) $(PRODUCT_BIN)
+	$(CC) -o $@ $(CFLAGS) $< $(LIBS) $(OTHER_LIBS) $(OBJS)
 
-findth: $(OFILE_DIR) findth.o $(OBJS) $(PRODUCT)
-	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+$(BINDIR)/findth: $(OFILE_DIR) $(OBJDIR)/findth.o $(OBJS) $(PRODUCT_BIN)
+	$(CC) -o $@ $(CFLAGS) $< $(LIBS) $(OTHER_LIBS) $(OBJS)
 
-draw_gm: $(OFILE_DIR) draw_gm.o $(OBJS) $(PRODUCT)
-	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+$(BINDIR)/draw_gm: $(OFILE_DIR) $(OBJDIR)/draw_gm.o $(OBJS) $(PRODUCT_BIN)
+	$(CC) -o $@ $(CFLAGS) $< $(LIBS) $(OTHER_LIBS) $(OBJS)
 
-draw_cdens: $(OFILE_DIR) draw_cdens.o $(OBJS) $(PRODUCT)
-	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+$(BINDIR)/draw_cdens: $(OFILE_DIR) $(OBJDIR)/draw_cdens.o $(OBJS) $(PRODUCT_BIN)
+	$(CC) -o $@ $(CFLAGS) $< $(LIBS) $(OTHER_LIBS) $(OBJS)
 
-tarshow: $(OFILE_DIR) tarshow.o $(PRODUCT)
-	$(CC) -o $(BIN_DIR)/$@ $(CFLAGS) $@.o $(LIBS) $(OTHER_LIBS) $(OBJS)
+$(BINDIR)/tarshow: $(OFILE_DIR) $(OBJDIR)/tarshow.o $(PRODUCT_BIN)
+	$(CC) -o $@ $(CFLAGS) $< $(LIBS) $(OTHER_LIBS) $(OBJS)
 
-picloader.o : picloader.c picloader.h piclib.h $(PFORMATSH)
+$(OBJDIR)/picloader.o : picloader.c picloader.h piclib.h $(PFORMATSH)
 
-picsaver.o : picsaver.c picsaver.h piclib.h $(PFORMATSH)
+$(OBJDIR)/picsaver.o : picsaver.c picsaver.h piclib.h $(PFORMATSH)
 
-devHP.o : devHP.c devHP.h piclib.h
-devXerox.o : devXerox.c devXerox.h piclib.h
-devNeXT.o : devNeXT.c devNeXT.h piclib.h devNXWin.h
-devAscii.o : devAscii.c devAscii.h piclib.h
+$(OBJDIR)/devHP.o : devHP.c devHP.h piclib.h
+$(OBJDIR)/devXerox.o : devXerox.c devXerox.h piclib.h
+$(OBJDIR)/devNeXT.o : devNeXT.c devNeXT.h piclib.h devNXWin.h
+$(OBJDIR)/devAscii.o : devAscii.c devAscii.h piclib.h
 
-picview.o : picview.c piclib.h picloader.h \
+$(OBJDIR)/picview.o : picview.c piclib.h picloader.h \
 	devHP.h devNeXT.h devAscii.h devXerox.h
 
-pictoeps.o : pictoeps.c piclib.h picloader.h
-picconvert.o : picconvert.c piclib.h picloader.h picsaver.h
-picinfo.o : picinfo.c piclib.h picloader.h
+$(OBJDIR)/pictoeps.o : pictoeps.c piclib.h picloader.h
+$(OBJDIR)/picconvert.o : picconvert.c piclib.h picloader.h picsaver.h
+$(OBJDIR)/picinfo.o : picinfo.c piclib.h picloader.h

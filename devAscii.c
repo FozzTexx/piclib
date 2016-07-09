@@ -310,12 +310,11 @@ static inline void ascii_dither(image *aPic, int columns, int rows)
 #define BL	5
 #define CP	(BL * columns)
 #define RP	(BL * rows)
-#define WR	((double) BL / cw)
-#define HR	((double) BL / ch)
 
 image charImage = {
-    1, 160, 15, 20,
-    (unsigned char *) "\377\377\377\377\377\377\377\000\377\377\377\000\377\000\377\377\000\377\000"
+    1, 160, 15, 1,
+    (unsigned char *)
+    "\377\377\377\377\377\377\377\000\377\377\377\000\377\000\377\377\000\377\000"
     "\377\377\000\000\000\377\377\000\377\377\000\377\377\000\377\377\377\377\000"
     "\377\377\377\377\000\377\377\377\377\000\377\377\377\377\000\377\377\377\377"
     "\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377"
@@ -484,7 +483,6 @@ int dispAscii(image *aPic, deviceCmd *cmd)
   struct winsize wsize;
   int columns = -1, rows = -1;
   double xs2, ys2;
-  int cw = 6, ch = 11;
 
   extern void handleDithering();
 #endif
@@ -558,16 +556,6 @@ int dispAscii(image *aPic, deviceCmd *cmd)
 #else
   ioctl(0, TIOCGWINSZ, &wsize);
 
-  if (wsize.ws_xpixel)
-    cw = wsize.ws_xpixel / wsize.ws_col;
-  if (wsize.ws_ypixel)
-    ch = wsize.ws_ypixel / wsize.ws_row;
-  
-  if (cmd->charWidth)
-    cw = cmd->charWidth;
-  if (cmd->charHeight)
-    ch = cmd->charHeight;
-
   if (cmd->columns)
     columns = cmd->columns;
   if (cmd->rows)
@@ -582,27 +570,28 @@ int dispAscii(image *aPic, deviceCmd *cmd)
   ys2 = cmd->yscale;
   if (cmd->scaleToFit) {
     if (!cmd->rows && cmd->columns) {
-      xs2 = (double) CP / ((double) aPic->width * cmd->xscale * WR) * cmd->xscale;
-      ys2 = ((double) CP / ((double) aPic->width * cmd->xscale * WR)) * cmd->yscale;
+      xs2 = ((double) CP) / aPic->width;
+      ys2 = xs2 * cmd->yscale;
     }
     else if (cmd->rows) {
-      xs2 = ((double) RP / ((double) aPic->height * cmd->yscale * HR)) * cmd->xscale;
-      ys2 = (double) RP / ((double) aPic->height * cmd->yscale * HR) * cmd->yscale;
-      if (cmd->columns && ((aPic->width * xs2 * WR) / BL) > cmd->columns) {
-	xs2 = (double) CP / ((double) aPic->width * cmd->xscale * WR) * cmd->xscale;
-	ys2 = ((double) CP / ((double) aPic->width * cmd->xscale * WR)) * cmd->yscale;
+      ys2 = ((double) RP) / aPic->height;
+      xs2 = ys2 * cmd->xscale;
+      if (cmd->columns && ((aPic->width * xs2 + BL - 1) / BL) > cmd->columns) {
+	xs2 = ((double) CP) / aPic->width;
+	ys2 = xs2 * cmd->yscale;
       }
     }
   }
   else {
     if (cmd->columns)
-      xs2 = (double) CP / (double) aPic->width;
+      xs2 = ((double) CP) / aPic->width;
     if (cmd->rows)
-      ys2 = (double) RP / (double) aPic->height;
+      ys2 = ((double) RP) / aPic->height;
   }
 
-  makeMono(aPic);
-  scaleImage(xs2 * WR, ys2 * HR, 0, aPic);
+  columns = (aPic->width * xs2 + BL - 1) / BL;
+  rows = (aPic->height * ys2 + BL - 1) / BL;
+  resizeImage(columns * BL, rows * BL, 1, aPic);
   if (cmd->ditherMode)
     handleDithering(cmd->ditherMode, aPic, 1, NULL);
   negateImage(aPic);

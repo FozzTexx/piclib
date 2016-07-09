@@ -7,7 +7,8 @@ CFILES= fmtIIgs.c fmtgif.c fmtast.c fmthp150.c fmtppm.c fmtclip.c	\
 	fmtgrob.c fmtjpeg.c fmtppp.c fmtSNES.c fmtpng.c fmtlibtiff.c	\
 	fmtIIhires.c \
 	picloader.c picsaver.c piclib.c
-CFLAGS= -O3 -g -Wall -I$(HOME)/Unix/$(OSTYPE)/include
+#CFLAGS= -O3 -g -Wall -I$(HOME)/Unix/$(OSTYPE)/include
+CFLAGS= -g -Wall -I$(HOME)/Unix/$(OSTYPE)/include
 MAKEFILEDIR=/usr/local/Makefiles
 MAKEFILE=lib.make
 NS33LIBS= -lNeXT_s -lsys_s

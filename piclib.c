@@ -46,10 +46,6 @@ int ditherImage(image *aPic, int *mapping, int bits)
   int *ditherTable;
   int err;
   int dir = 1;
-  
-  void exit();
-  void *malloc();
-  void free();
 
 
   allocateImage(&newPic, aPic->photoInterp & (MONOMASK | COLORMASK | ALPHAMASK),
@@ -110,10 +106,6 @@ int thresholdImage(image *aPic, int *mapping, int bits)
   int i;
   int scl = 255 / ((1 << bits) - 1);
   byte *dt, *dt2;
-  
-  void exit();
-  void *malloc();
-  void free();
 
 
   allocateImage(&newPic, aPic->photoInterp & (MONOMASK | COLORMASK | ALPHAMASK)
@@ -148,9 +140,6 @@ int halftoneImage(image *aPic, int *mapping, int bits)
     45, 237,  30, 219,  42, 231,  24, 216,
     171, 108, 156,  93, 168, 105, 153,  90,
   };
-
-  void *malloc();
-  void free();
 
 
   allocateImage(&newPic, aPic->photoInterp & (MONOMASK | COLORMASK | ALPHAMASK),
@@ -192,14 +181,17 @@ int halftoneImage(image *aPic, int *mapping, int bits)
 
 void negateImage(image *aPic)
 {
-  int i, len;
+  int i, j, len, ns;
   byte *dt;
 
 
-  len = aPic->width * aPic->height * (aPic->photoInterp & COLORMASK ? 3 : 1);
+  len = aPic->width * aPic->height * aPic->samplesPerPixel;
+  ns =  aPic->photoInterp & COLORMASK ? 3 : 1;
 
-  for (i = 0, dt = aPic->data; i < len; i++, dt++)
-    *dt = MV - *dt;
+  for (i = 0, dt = aPic->data; i < len; i += aPic->samplesPerPixel) {
+    for (j = 0; j < ns; j++)
+      dt[i + j] = MV - dt[i + j];
+  }
 
   return;
 }
@@ -222,6 +214,9 @@ void resizeImage(unsigned int width, unsigned int height, int blend, image *aPic
   double xpercent, ypercent;
 
 
+  if (aPic->width == width && aPic->height == height)
+    return;
+  
   allocateImage(&newPic, aPic->photoInterp, width, height);
   xpercent = (double) newPic.width / aPic->width;
   ypercent = (double) newPic.height / aPic->height;
@@ -305,27 +300,22 @@ void makeMono(image *aPic)
   image newPic;
   int len;
   byte *dt, *dt2;
-  int alpha = 0, ns;
+  int alpha = 0;
   
 
-  if (aPic->photoInterp == MONOMASK)
+  if (aPic->photoInterp & MONOMASK)
     return;
 
   allocateImage(&newPic, MONOMASK | (aPic->photoInterp & ALPHAMASK),
 		aPic->width, aPic->height);
 
-  ns = 3;
-  if (aPic->photoInterp & ALPHAMASK) {
-    ns++;
-    alpha = 1;
-  }
-  
-  len = aPic->width * aPic->height * ns;
-  for (i = 0, dt = newPic.data, dt2 = aPic->data; i < len;
-       i += ns, dt += 1 + alpha, dt2 += ns) {
-    *dt = (*(dt2 + 0) * 77 + *(dt2 + 1) * 150 + *(dt2 + 2) * 29) / 256;
+  len = aPic->width * aPic->height;
+  for (i = 0, dt = newPic.data, dt2 = aPic->data; i < len; i++) {
+    dt[i * newPic.samplesPerPixel] = (dt2[i * aPic->samplesPerPixel + 0] * 77
+			   + dt2[i * aPic->samplesPerPixel + 1] * 150
+			   + dt2[i * aPic->samplesPerPixel + 2] * 29) / 256;
     if (alpha)
-      *(dt+1) = *(dt + ns);
+      dt[i * newPic.samplesPerPixel + 1] = dt2[i * aPic->samplesPerPixel + 3];
   }
 
   freeImage(aPic);
@@ -499,8 +489,6 @@ void allocateImage(image *aPic, int photoInterp, int width, int height)
 int copyImage(image *dest, image *source)
 {
   int i;
-  
-  void *malloc();
 
 
   allocateImage(dest, source->photoInterp, source->width, source->height);
@@ -695,8 +683,6 @@ int unconstructImage(image *aPic, int photoInterp, int planarConfig, int minbpp,
   picRec newpic;
   int samples = 1;
 
-  void *malloc();
-  
 
   if (planarConfig == MESHED) {
     if (photoInterp & COLORMASK && !(photoInterp & PALETTEMASK))

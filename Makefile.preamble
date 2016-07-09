@@ -1,2 +1,2 @@
-OTHER_TARGETS= picview picconvert picinfo
+OTHER_TARGETS= $(BINDIR)/picview $(BINDIR)/picconvert $(BINDIR)/picinfo
 OTHER_GARBAGE= picview picconvert picinfo pictoeps find_dens findth draw_gm draw_cdens tarshow

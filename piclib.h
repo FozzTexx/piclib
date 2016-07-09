@@ -39,17 +39,21 @@
 #define YES	1
 #endif
 
-#define RED	0
-#define GREEN	1
-#define BLUE	2
-#define ALPHA	3
-#define MONO	4
+enum {
+  RED = 0,
+  GREEN = 1,
+  BLUE = 2,
+  ALPHA = 3,
+  MONO = 4,
+};
 
-#define MONOMASK	1
-#define COLORMASK	2
-#define CMYKMASK	4
-#define PALETTEMASK	8
-#define ALPHAMASK      16
+enum {
+  MONOMASK = 1,
+  COLORMASK = 2,
+  CMYKMASK = 4,
+  PALETTEMASK = 8,
+  ALPHAMASK = 16,
+};
 
 #define MESHED 1
 #define PLANAR 2
